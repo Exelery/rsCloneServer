@@ -19,7 +19,7 @@ authDb.connect((err) => {
   console.log(`Connected to database as id ${authDb.threadId}`);
 })
 
-const createTable =`CREATE TABLE IF NOT EXISTS ${process.env.DBNAME} (
+const createTable =`CREATE TABLE IF NOT EXISTS ${process.env.TABLENAME} (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(200) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,

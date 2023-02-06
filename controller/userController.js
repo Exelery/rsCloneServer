@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 config()
 
 export const getAllUsers = (req, res) => {
-  authDb.query(`SELECT id, email, FROM ${process.env.DBNAME} WHERE email = ${req.body.email}`, (error, rows, fields) => {
+  authDb.query(`SELECT id, email, FROM ${process.env.TABLENAME} WHERE email = ${req.body.email}`, (error, rows, fields) => {
     if (error) {
       status(400, error, res);
     } else {
@@ -20,7 +20,7 @@ export const signup = (req, res) => {
   const email = req.body.email
   const salt = bcrypt.genSaltSync(15)
   const password = bcrypt.hashSync(req.body.password, salt)
-  const sqlCheck = `SELECT id, email, password FROM ${process.env.DBNAME} WHERE email = "${email}"`;
+  const sqlCheck = `SELECT id, email, password FROM ${process.env.TABLENAME} WHERE email = "${email}"`;
   authDb.query(sqlCheck, (error, rows, fields,) => {
     if (error) {
       status(400, error, res);
@@ -33,7 +33,7 @@ export const signup = (req, res) => {
       })
     } else {
 
-      const sql = `INSERT INTO ${process.env.DBNAME}(email, password) VALUES("${email}", "${password}")`;
+      const sql = `INSERT INTO ${process.env.TABLENAME}(email, password) VALUES("${email}", "${password}")`;
       authDb.query(sql, (error, results) => {
         if (error) {
           status(400, error, res)
@@ -48,7 +48,7 @@ export const signup = (req, res) => {
 
 export const signin = (req, res) => {
 
-  authDb.query(`SELECT id, email, password FROM ${process.env.DBNAME} WHERE email = "${req.body.email}"`, (error, rows, fields) => {
+  authDb.query(`SELECT id, email, password FROM ${process.env.TABLENAME} WHERE email = "${req.body.email}"`, (error, rows, fields) => {
     if (error) {
       status(400, error, res)
     } else if (rows.length <= 0) {
