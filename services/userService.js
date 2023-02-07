@@ -22,7 +22,7 @@ export default class UserService {
       } else {
         const activationLink = uuidv4()
         const mailService = new MailService()
-        await mailService.sendActivationMail
+        // await mailService.sendActivationMail{mail, }
         const salt = bcrypt.genSaltSync(15)
         const passwordHash = bcrypt.hashSync(password, salt)
         const sql = `INSERT INTO ${process.env.TABLENAME}(email, password) VALUES("${email}", "${passwordHash}")`;
