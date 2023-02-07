@@ -13,7 +13,7 @@ export const jwtPass = (passport) => {
   passport.use(
       new Strategy(options, (payload, done) => {
           try {
-            authDb.query(`SELECT id, email FROM users WHERE id = "${payload.userId}"`, (error, rows, fields) => {
+            authDb.query(`SELECT id, email FROM ${process.env.TABLENAME} WHERE id = "${payload.userId}"`, (error, rows, fields) => {
                   if(error) {
                       console.log(error)
                   } else {

@@ -1,6 +1,6 @@
-export const status = (stat, values, res) => {
+export const response = (status, values, res) => {
   const data = {
-    'status': stat,
+    'status': status,
     'value': values
   }
   
