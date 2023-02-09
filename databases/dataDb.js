@@ -20,7 +20,7 @@ export async function initBd() {
 
 
   const createTable = `CREATE TABLE IF NOT EXISTS ${process.env.TABLEUSERDATANAME} (
-    id INT PRIMARY KEY,
+    id VARCHAR(255) PRIMARY KEY,
     path VARCHAR(255) NOT NULL UNIQUE,
     data VARCHAR(max) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
