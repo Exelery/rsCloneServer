@@ -3,6 +3,8 @@ import { response } from '../response.js';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import MailService from './mailServer.js'
+import { config } from 'dotenv';
+config()
 
 
 
@@ -22,7 +24,7 @@ export default class UserService {
       } else {
         const activationLink = uuidv4()
         const mailService = new MailService()
-        // await mailService.sendActivationMail{mail, }
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}` )
         const salt = bcrypt.genSaltSync(15)
         const passwordHash = bcrypt.hashSync(password, salt)
         const sql = `INSERT INTO ${process.env.TABLENAME}(email, password) VALUES("${email}", "${passwordHash}")`;

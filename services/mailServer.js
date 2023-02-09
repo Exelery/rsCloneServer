@@ -1,6 +1,8 @@
 import nodemailer from 'nodemailer';
+import { config } from 'dotenv';
+config()
 
-class MailService {
+export default class MailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -15,6 +17,8 @@ class MailService {
     }
 
     async sendActivationMail(to, link) {
+      console.log( process.env.SMTP_USER,
+        process.env.SMTP_PASSWORD)
         await this.transporter.sendMail({
             from: process.env.SMTP_USER,
             to,
@@ -28,7 +32,6 @@ class MailService {
                     </div>
                 `
         })
+        console.log('message was sent')
     }
 }
-
-module.exports = new MailService();
