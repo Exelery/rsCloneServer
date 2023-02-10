@@ -12,7 +12,7 @@ export default class UserController {
   async getAllUsers(req, res) {
     authDb.query(`SELECT id, email password FROM ${process.env.TABLENAME}`, (error, rows, fields) => {
       if (error) {
-        response(400, error, res);
+        response(500, error, res);
       } else {
         response(200, rows, res)
       }
@@ -23,7 +23,6 @@ export default class UserController {
   async signup(req, res) {
       const { email, password } = req.body
       await userService.registration(email, password, res)
-      // response(code, value, res)
   }
   
   async signin(req, res) {

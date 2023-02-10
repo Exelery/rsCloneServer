@@ -14,8 +14,10 @@ router.get('/users', userController.getAllUsers)
   router.get('/auth/logout')
   router.get('/auth/activate/:link') // userController.activate
   // router.post('/data')
-  router.post('/data/update', dataController.addUserData)
+  router.post('/data/update', dataController.updateProject)
+  router.post('/data/add', dataController.addProject)
   router.post('/data/get', dataController.getUserData)
+  router.post('/data/delete', dataController.deleteProject)
 
 // export const routes = (app) => {
 //   app.route('/api/users')
