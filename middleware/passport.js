@@ -1,5 +1,5 @@
 import {Strategy, ExtractJwt } from 'passport-jwt';
-import { authDb} from '../databases/authDb.js'
+import Connection from '../databases/createConnection.js';
 import { config } from 'dotenv';
 config()
 
@@ -11,8 +11,10 @@ const options = {
 
 export const jwtPass = (passport) => {
   passport.use(
-      new Strategy(options, (payload, done) => {
+      new Strategy(options, async (payload, done) => {
           try {
+            console.log(payload)
+            const authDb = await Connection.getInstance()
             authDb.query(`SELECT id, email FROM ${process.env.TABLENAME} WHERE id = "${payload.userId}"`, (error, rows, fields) => {
                   if(error) {
                       console.log(error)

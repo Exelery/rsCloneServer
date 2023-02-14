@@ -6,10 +6,13 @@ DBPASSWORD= '000111'
 DBNAME= 'users'
 TABLENAME= 'users'
 JWT='my-32-character-ultra-secure-and-ultra-long-secret'
+JWT_ACCESS = 'somestring'
+JWT_REFRESH = 'some ultra long string'
 
 
 #userdata
 TABLEUSERDATANAME= 'data'
+TABLETOKENNAME= 'refreshToken'
 
 # почта
 SMTP_HOST = "sandbox.smtp.mailtrap.io"
@@ -17,4 +20,5 @@ SMTP_PORT = 2525
 SMTP_USER = "3b902588d4a5e3"
 SMTP_PASSWORD = "5bd84145a00043"
 API_URL = "http://localhost:5000"
+CLIENT_URL = "http://ya.ru"
 

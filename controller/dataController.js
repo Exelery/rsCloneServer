@@ -77,7 +77,11 @@ export default class DataController {
       const answer = await this.bd.query(sql)
       this.writeProjectFile(userId, projectId, data)
       console.log(answer[0].insertId)
-      response(200, { projectID: answer[0] }, res)
+      if(answer[0].affectedRows) {
+        response(200, `Project ${projectId} updated`, res)
+      } else {
+        response(400, `Project ${projectId} doesn't exist`, res)
+      }
     } catch (err) {
       console.log(err)
       response(500, err, res)
