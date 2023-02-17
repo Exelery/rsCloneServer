@@ -7,9 +7,13 @@ export default class DataDB {
     const dataDb = await Connection.getInstance()
     const createTable = `CREATE TABLE IF NOT EXISTS ${process.env.TABLEUSERDATANAME} (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      hash VARCHAR(255) PRIMARY KEY,
-      files JSON
+      userId INT NOT NULL,
+      projectId INT NOT NULL,
+      projectName VARCHAR(255)
     );`
+    // path VARCHAR(255)
+    
+    // ${user_id}/${project_name})
 
     const result = await dataDb.query(createTable);
     // console.log(result)

@@ -11,12 +11,12 @@ const dataController = new DataController()
 
 router.get('/users', pass, userController.getAllUsers)
 // .get(passport.authenticate('jwt', { session: false }), getAllUsers)
-router.post('/auth/signup',
+router.post('/auth/registration',
   body('email').isEmail(),
   body('password').isLength({ min: 3, max: 32 }),
   userController.registration)
 router.post('/auth/login', userController.login)
-router.post('/auth/logout', userController.logout)
+router.get('/auth/logout', userController.logout)
 router.post('/auth/refresh', userController.refresh)
 router.get('/auth/activate/:link', userController.activate)
 
