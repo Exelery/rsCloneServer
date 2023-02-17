@@ -26,7 +26,7 @@ export default class DataModel {
       const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
       const files = await Promise.all(projetfileNames.map(async fileName => {
         const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
-        return { fileName: content }
+        return { [fileName]: content }
       }))
       return {
         projectId: data.projectId,
@@ -71,9 +71,10 @@ export default class DataModel {
 
   writeProjectFiles = async (id, projectName, data) => {
     await mkdir(`${this.dataPath}/${id}/${projectName}`, { recursive: true })
-    const files = Object.keys(data)
-    files.forEach(el => {
-      writeFile(`${this.dataPath}/${id}/${projectName}/${el}`, data[el])
+    // const files = Object.keys(data)
+    data.forEach(el => {
+      const fileName = Object.keys(el)
+      writeFile(`${this.dataPath}/${id}/${projectName}/${fileName}`, el[fileName])
     })
   }
 }

@@ -46,31 +46,34 @@ export default class UserController {
       console.log(rows)
       if (typeof rows !== 'undefined' && rows.length > 0) {
         rows.map(rw => {
-          response(302, { message: `User with name - ${rw.email} already exist` }, res)
+          response(302, `User with name - ${rw.email} already exist`, res)
           return true
         })
       } else {
-        const activationLink = uuidv4()
-        const mailService = new MailService()
         const salt = bcrypt.genSaltSync(15)
         const passwordHash = await bcrypt.hash(password, salt)
-
+        const activationLink = this.sendActivationMail(email)
         const sql = `INSERT INTO ${process.env.TABLENAME}(name, email, password, activationLink) VALUES("${name}", "${email}", "${passwordHash}", "${activationLink}")`;
         const answer = await this.bd.query(sql)
-        console.log(answer, answer[0].insertId)
-        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`)
         const tokens = await tokenService.generateTokens({ email: email, id: answer.insertId })
         console.log('tokens', tokens)
         await tokenService.saveToken(answer[0].insertId, tokens.refreshToken)
 
         res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
-        response(200, { message: `Registration is successful`, answer }, res)
+        response(200, `Registration is successful`, res)
       }
     } catch (err) {
       console.log(err)
       response(500, err, res);
     }
 
+  }
+
+  sendActivationMail(email) {
+    const activationLink = uuidv4()
+    const mailService = new MailService()
+    mailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`)
+    return activationLink
   }
 
   login = async (req, res) => {
