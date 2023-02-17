@@ -94,6 +94,8 @@ export default class UserController {
             })
             await tokenService.saveToken(rw.id, tokens.refreshToken)
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+            res.set('Access-Control-Allow-Origin', process.env.SITE_URL)
+            res.set('Access-Control-Allow-Credentials', 'true')
             response(200, { id: rw.id, ...tokens }, res)
 
           } else {
