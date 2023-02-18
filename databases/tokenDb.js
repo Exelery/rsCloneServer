@@ -6,7 +6,8 @@ export default class TokenDB {
   async initBd() {
     const dataDb = await Connection.getInstance()
     const createTable = `CREATE TABLE IF NOT EXISTS ${process.env.TABLETOKENNAME} (
-      id INT PRIMARY KEY NOT NULL,
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL UNIQUE,
       token VARCHAR(255) NOT NULL
     );`
 

@@ -26,17 +26,17 @@ export default class TokenService {
   saveToken = async (userId, refreshToken) => {
     try {
       await this.initDatase()
-      const sql = `INSERT INTO ${process.env.TABLETOKENNAME} (id, token)
+      const sql = `INSERT INTO ${process.env.TABLETOKENNAME} (userId, token)
     VALUES (${userId}, '${refreshToken}')
     ON DUPLICATE KEY UPDATE
-    token = '${refreshToken}';`
+    token = '${refreshToken}'`
       const answer = await this.bd.query(sql)
     } catch (err) {
       console.log(err)
       //
     }
   }
-  
+
   removeToken = async (refreshToken) => {
     try {
       const sql = `DELETE FROM ${process.env.TABLETOKENNAME}
@@ -48,10 +48,10 @@ export default class TokenService {
       console.log(err)
     }
   }
-  
+
   findToken = async (refreshToken) => {
     try {
-      const sql = `SELECT id, token FROM ${process.env.TABLETOKENNAME}
+      const sql = `SELECT userId, token FROM ${process.env.TABLETOKENNAME}
       WHERE token = '${refreshToken}';`
       const [rows, fields] = await this.bd.query(sql)
       if (typeof rows !== 'undefined' && rows.length > 0) {
@@ -62,26 +62,26 @@ export default class TokenService {
       console.log(err)
     }
   }
-  
-  static validateAccessToken = (token) =>{
+
+  static validateAccessToken = (token) => {
     try {
       const data = jwt.verify(token, process.env.JWT_ACCESS)
       console.log(data)
       return data
-    } catch(err) {
+    } catch (err) {
       return null
     }
   }
-  
-  static validateRefreshToken = (token) =>{
+
+  static validateRefreshToken = (token) => {
     try {
       const data = jwt.verify(token, process.env.JWT_REFRESH)
       return data
-    } catch(err) {
+    } catch (err) {
       return null
     }
   }
-  
+
   static getUserIdFromHeader = (req) => {
     const token = req.headers.authorization.split(' ')[1]
     console.log("token", token)

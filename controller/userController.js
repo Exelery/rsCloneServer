@@ -173,7 +173,7 @@ export default class UserController {
       if (!refreshToken) {
         return response(400, "Unauthorisation Error", res);
       }
-      const userData = await TokenService.validateRefreshToken(refreshToken);
+      const userData = TokenService.validateRefreshToken(refreshToken);
       const tokenFromDb = await tokenService.findToken(refreshToken)
       console.log('userData', userData)
       console.log('tokenFromDb', tokenFromDb)
