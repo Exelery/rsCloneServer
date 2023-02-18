@@ -63,21 +63,29 @@ export default class TokenService {
     }
   }
   
-  validateAccessToken = async (token) =>{
+  static validateAccessToken = (token) =>{
     try {
       const data = jwt.verify(token, process.env.JWT_ACCESS)
+      console.log(data)
       return data
     } catch(err) {
       return null
     }
   }
   
-  validateRefreshToken = async (token) =>{
+  static validateRefreshToken = (token) =>{
     try {
       const data = jwt.verify(token, process.env.JWT_REFRESH)
       return data
     } catch(err) {
       return null
     }
+  }
+  
+  static getUserIdFromHeader = (req) => {
+    const token = req.headers.authorization.split(' ')[1]
+    console.log("token", token)
+    const temp = TokenService.validateAccessToken(token)
+    return temp.userId;
   }
 }

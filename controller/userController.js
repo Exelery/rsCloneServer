@@ -1,18 +1,20 @@
 import { response } from '../response.js'
 import UsersDB from '../databases/authDb.js'
-import UserService from '../services/userService.js'
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import MailService from '../services/mailServer.js'
 import { config } from 'dotenv';
 import TokenService from '../services/token-service.js'
 import { validationResult } from 'express-validator';
+import UserModel from '../models/userModel.js';
+import jwt from 'jsonwebtoken';
 config()
 
 const tokenService = new TokenService()
-const userService = new UserService();
 export default class UserController {
   bd;
+  userModel;
+  
   constructor() {
     this.initDatase()
   }
@@ -21,6 +23,7 @@ export default class UserController {
     const userBd = new UsersDB()
     if (!this.bd) {
       this.bd = await userBd.initBd()
+      this.userModel = new UserModel(this.bd)
     }
   }
 
@@ -33,7 +36,21 @@ export default class UserController {
       response(500, err, res);
     }
   }
-
+  
+  getUser = async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1]
+      const temp = TokenService.validateAccessToken(token)
+      const answer = await this.userModel.getUserByEmail(temp.email)
+      console.log(answer)
+      // const [rows, columns] = await this.bd.query(`SELECT id, email password FROM ${process.env.TABLENAME}`)
+      response(200, answer, res)
+    } catch (err) {
+      console.log(err)
+      response(500, err, res);
+    }
+  }
+  
   registration = async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -94,8 +111,8 @@ export default class UserController {
             })
             await tokenService.saveToken(rw.id, tokens.refreshToken)
             res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
-            res.set('Access-Control-Allow-Origin', process.env.SITE_URL)
-            res.set('Access-Control-Allow-Credentials', 'true')
+            // res.set('Access-Control-Allow-Origin', process.env.SITE_URL)
+            // res.set('Access-Control-Allow-Credentials', 'true')
             response(200, { id: rw.id, ...tokens }, res)
 
           } else {
@@ -156,7 +173,7 @@ export default class UserController {
       if (!refreshToken) {
         return response(400, "Unauthorisation Error", res);
       }
-      const userData = await tokenService.validateRefreshToken(refreshToken);
+      const userData = await TokenService.validateRefreshToken(refreshToken);
       const tokenFromDb = await tokenService.findToken(refreshToken)
       console.log('userData', userData)
       console.log('tokenFromDb', tokenFromDb)
@@ -165,7 +182,6 @@ export default class UserController {
       }
 
       const [rows, fields] = await this.bd.query(`SELECT id, email, password FROM ${process.env.TABLENAME} WHERE id = ${userData.userId}`)
-      console.log('rows', rows)
       if (rows.length <= 0) {
         return response(401, { message: `Пользователь с id - ${userData.id} не найден. Пройдите регистрацию.` }, res)
       } else {
@@ -176,9 +192,7 @@ export default class UserController {
             userId: rw.id,
             email: rw.email
           })
-          await tokenService.saveToken(rw.id, tokens.refreshToken)
-          res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
-          response(200, { id: rw.id, ...tokens }, res)
+          response(200, tokens.accessToken, res)
 
 
         })

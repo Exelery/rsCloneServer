@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { readFile, writeFile, unlink, mkdir, readdir, rmdir} from 'fs/promises';
+import { readFile, writeFile, unlink, mkdir, readdir, rm } from 'fs/promises';
 
 
 export default class DataModel {
@@ -20,13 +20,13 @@ export default class DataModel {
   async getUserData(userId) {
     const result = await this.selectAllProjects(userId)
     if (result.length === 0) {
-      return null
+      return []
     }
     const answer = await Promise.all(result.map(async (data) => {
       const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
       const files = await Promise.all(projetfileNames.map(async fileName => {
         const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
-        return { [fileName]: content }
+        return { fileName: fileName, content: content }
       }))
       return {
         projectId: data.projectId,
@@ -61,20 +61,24 @@ export default class DataModel {
   }
 
   async deleteProject(userId, projectId) {
-    const sql = `DELETE FROM ${process.env.TABLEUSERDATANAME}
+    try {
+      const sql = `DELETE FROM ${process.env.TABLEUSERDATANAME}
     WHERE projectId = ${projectId} AND userId = ${userId};`
-    const answer = await this.bd.query(sql, projectId)
-    await rmdir((`${this.dataPath}/${userId}/${projectId}/`), {recursive:true})
-    return answer
+      const answer = await this.bd.query(sql, projectId)
+      await rm((`${this.dataPath}/${userId}/${projectId}/`), { recursive: true })
+      return true
+    } catch (err) {
+      console.log(err)
+      return  false
+    }
+
 
   }
 
   writeProjectFiles = async (id, projectName, data) => {
     await mkdir(`${this.dataPath}/${id}/${projectName}`, { recursive: true })
-    // const files = Object.keys(data)
     data.forEach(el => {
-      const fileName = Object.keys(el)
-      writeFile(`${this.dataPath}/${id}/${projectName}/${fileName}`, el[fileName])
+      writeFile(`${this.dataPath}/${id}/${projectName}/${el.fileName}`, el.content)
     })
   }
 }

@@ -3,7 +3,6 @@ import { response } from '../response.js'
 
 export default async function pass (req, res, next) {
     try {
-      const tokenService = new TokenService()
         const authorizationHeader = req.headers.authorization;
         if (!authorizationHeader) {
             return response(403, 'Unauthorized access', res);
@@ -14,8 +13,8 @@ export default async function pass (req, res, next) {
             return response(403, 'Unauthorized access', res);
         }
 
-        const userData = await tokenService.validateAccessToken(accessToken);
-        console.log(userData)
+        const userData = await TokenService.validateAccessToken(accessToken);
+        // console.log(userData)
         if (!userData) {
             return response(403, 'Unauthorized access', res);
         } 

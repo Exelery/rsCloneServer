@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import DataDB from '../databases/dataDb.js'
 import { response } from '../response.js'
 import DataModel from '../models/dataModel.js';
+import TokenService from '../services/token-service.js';
 dotenv.config()
 
 export default class DataController {
@@ -20,16 +21,18 @@ export default class DataController {
 
   }
 
-  getUserData = async (req, res) => {
+  getUserProjects = async (req, res) => {
     try {
-      const { userId } = req.body
+      const userId = await TokenService.getUserIdFromHeader(req)
+      // const { userId } = req.body
+      // console.log('getprojets', temp.id)
       const answer = await this.dataModel.getUserData(userId)
       console.log(answer)
       if (!answer) {
         return response(400, "User doesn't exist", res)
 
       }
-      
+
       response(200, answer, res)
     } catch (err) {
       console.log(err)
@@ -40,8 +43,9 @@ export default class DataController {
 
   addProject = async (req, res) => {
     try {
-      const { userId, projectName, data } = req.body
-      
+      const { projectName, data } = req.body
+      const userId = await TokenService.getUserIdFromHeader(req)
+
       const answer = await this.dataModel.addNewProjects(userId, projectName, data)
       response(200, { projectId: answer.projectId }, res)
     } catch (err) {
@@ -52,10 +56,11 @@ export default class DataController {
 
   updateProject = async (req, res) => {
     try {
-      const { userId, projectId, projectName, data } = req.body 
-      const answer = await this.dataModel.updateProject( userId, projectId, projectName, data )
+      const { projectId, projectName, data } = req.body
+      const userId = await TokenService.getUserIdFromHeader(req)
+      const answer = await this.dataModel.updateProject(userId, projectId, projectName, data)
       console.log(answer[0].insertId)
-      if(answer[0].affectedRows) {
+      if (answer[0].affectedRows) {
         response(200, `Project ${projectId} updated`, res)
       } else {
         response(400, `Project ${projectId} doesn't exist`, res)
@@ -68,14 +73,16 @@ export default class DataController {
 
   deleteProject = async (req, res) => {
     try {
-      const { userId, projectId } = req.body
-     
-      const answer = await this.dataModel.deleteProject( userId, projectId )
+      const { projectId } = req.body
+      console.log(req.data)
+      const userId = await TokenService.getUserIdFromHeader(req)
+
+      const answer = await this.dataModel.deleteProject(userId, projectId)
       console.log(answer[0])
-      if(answer[0].affectedRows) {
+      if (answer) {
         response(200, `Project ${projectId} deleted`, res)
       } else {
-        response(400, `Project ${projectId} doesn't exist`, res)
+        response(302, `Project ${projectId} doesn't exist`, res)
       }
     } catch (err) {
       console.log(err)
