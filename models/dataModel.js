@@ -1,23 +1,32 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import { readFile, writeFile, unlink, mkdir, readdir, rm } from 'fs/promises';
+import Connection from '../databases/createConnection.js';
+
 
 
 export default class DataModel {
-
-  constructor(connection) {
-    this.bd = connection
+  bd;
+  
+  constructor() {
     this.dataPath = process.cwd() + '/data'
     mkdir(`${this.dataPath}`, { recursive: true })
   }
+  
+  async initConnection() {
+    this.bd = await Connection.getInstance()
+  }
 
   async selectAllProjects(userId) {
+    await this.initConnection()
+    
     const sql = `SELECT * FROM ${process.env.TABLEUSERDATANAME} where userId = ${userId}`
     const result = await this.bd.query(sql)
     return result[0]
   }
 
   async getUserData(userId) {
+    await this.initConnection()
     const result = await this.selectAllProjects(userId)
     if (result.length === 0) {
       return []
@@ -39,6 +48,7 @@ export default class DataModel {
   }
 
   async addNewProjects(userId, projectName, data) {
+    await this.initConnection()
     const allProjects = await this.selectAllProjects(userId)
     const projectId = allProjects.length ? allProjects[allProjects.length - 1].projectId + 1 : 0
 
@@ -51,6 +61,7 @@ export default class DataModel {
 
 
   async updateProject(userId, projectId, projectName, data) {
+    await this.initConnection()
     const sql = `UPDATE ${process.env.TABLEUSERDATANAME}
     SET projectName = '${projectName}'
     WHERE projectId = ${projectId} AND userId = ${userId}`
@@ -61,6 +72,7 @@ export default class DataModel {
   }
 
   async deleteProject(userId, projectId) {
+    await this.initConnection()
     try {
       const sql = `DELETE FROM ${process.env.TABLEUSERDATANAME}
     WHERE projectId = ${projectId} AND userId = ${userId};`

@@ -16,7 +16,7 @@ export default class DataController {
     const dataBd = new DataDB()
     if (!this.bd) {
       this.bd = await dataBd.initBd()
-      this.dataModel = new DataModel(this.bd)
+      this.dataModel = new DataModel()
     }
 
   }

@@ -4,11 +4,9 @@ dotenv.config()
 
 
 export default class Connection {
-  static connection = null;
-
+  
   static async getInstance() {
-    if (!Connection.connection) {
-      Connection.connection = await mysqlPromise.createConnection({
+      const connection = await mysqlPromise.createConnection({
         host: process.env.HOST,
         port: process.env.DBPORT,
         user: process.env.DBUSER,
@@ -17,14 +15,12 @@ export default class Connection {
       });
       
       try {
-        await Connection.connection.connect()
-        console.log(`Connected to database as id ${Connection.connection.threadId}`);
+        await connection.connect()
+        console.log(`Connected to database as id ${connection.threadId}`);
       } catch (err) {
         console.error(`Error connecting to database: ${err.stack}`);
       }
-    }
-
-    return Connection.connection;
+    return connection;
   }
 
   static query(sql, values) {
