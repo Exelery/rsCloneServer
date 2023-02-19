@@ -174,11 +174,11 @@ export default class UserController {
       }
       const userExist = await this.userModel.checkUserExistByEmail(userData.email)
       if (!userExist) {
-        return response(401, { message: `Пользователь с id - ${userData.id} не найден. Пройдите регистрацию.` }, res)
+        return response(401, { message: `Пользователь с id - ${userData.userId} не найден. Пройдите регистрацию.` }, res)
       }
 
       const tokens = await tokenService.generateTokens({
-        userId: userData.id,
+        userId: userData.userId,
         email: userData.email
       })
       return response(200, tokens.accessToken, res)
