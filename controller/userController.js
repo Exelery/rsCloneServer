@@ -171,7 +171,7 @@ export default class UserController {
       const { refreshToken } = req.cookies;
       console.log(refreshToken)
       if (!refreshToken) {
-        return response(400, "Unauthorisation Error", res);
+        return response(400, "No refresh Token", res);
       }
       const userData = TokenService.validateRefreshToken(refreshToken);
       const tokenFromDb = await tokenService.findToken(refreshToken)
