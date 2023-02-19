@@ -86,6 +86,8 @@ export default class TokenService {
     const token = req.headers.authorization.split(' ')[1]
     console.log("token", token)
     const temp = TokenService.validateAccessToken(token)
+    console.log(temp)
+    console.log(temp.userId)
     return temp.userId;
   }
 }
