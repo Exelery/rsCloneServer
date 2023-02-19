@@ -23,7 +23,10 @@ export default class DataController {
 
   getUserProjects = async (req, res) => {
     try {
+      console.log('cookies',req.cookies)
+
       const userId = await TokenService.getUserIdFromHeader(req)
+      console.log('userId', userId)
       // const { userId } = req.body
       // console.log('getprojets', temp.id)
       const answer = await this.dataModel.getUserData(userId)

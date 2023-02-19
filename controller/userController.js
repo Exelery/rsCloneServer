@@ -105,7 +105,7 @@ export default class UserController {
         })
         await tokenService.saveToken(answer.id, tokens.refreshToken)
         res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true , sameSite: 'none', secure: true})
-        console.log(res)
+        // console.log(res)
         response(200, { id: answer.id, ...tokens }, res)
 
       } else {
@@ -161,7 +161,7 @@ export default class UserController {
   refresh = async (req, res) => {
     try {
       const { refreshToken } = req.cookies;
-      console.log(refreshToken)
+      console.log('refreshToken', refreshToken)
       if (!refreshToken) {
         return response(400, "No refresh Token", res);
       }
