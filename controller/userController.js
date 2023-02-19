@@ -71,7 +71,7 @@ export default class UserController {
       console.log('tokens', tokens)
       await tokenService.saveToken(insertId, tokens.refreshToken)
 
-      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true })
+      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true}) // sameSite: 'none', secure: true
       response(200, `Registration is successful`, res)
 
     } catch (err) {
@@ -104,9 +104,10 @@ export default class UserController {
           email: answer.email
         })
         await tokenService.saveToken(answer.id, tokens.refreshToken)
-        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true , sameSite: 'none', secure: true})
         // res.set('Access-Control-Allow-Origin', process.env.SITE_URL)
         // res.set('Access-Control-Allow-Credentials', 'true')
+        console.log(res)
         response(200, { id: answer.id, ...tokens }, res)
 
       } else {
