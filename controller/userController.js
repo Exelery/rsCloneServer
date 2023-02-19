@@ -71,7 +71,7 @@ export default class UserController {
       console.log('tokens', tokens)
       await tokenService.saveToken(insertId, tokens.refreshToken)
 
-      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true })
+      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true })
       response(200, `Registration is successful`, res)
 
     } catch (err) {
