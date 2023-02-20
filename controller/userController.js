@@ -72,7 +72,7 @@ export default class UserController {
       await tokenService.saveToken(insertId, tokens.refreshToken)
 
       res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true}) // sameSite: 'none', secure: true
-      response(200, `Registration is successful`, res)
+      response(200, {text: `Registration is successful`, token: tokens.accessToken}, res)
 
     } catch (err) {
       console.log(err)
@@ -106,7 +106,7 @@ export default class UserController {
         await tokenService.saveToken(answer.id, tokens.refreshToken)
         res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true , sameSite: 'none', secure: true})
         // console.log(res)
-        response(200, { id: answer.id, ...tokens }, res)
+        response(200, { id: answer.id, token: tokens.accessToken }, res)
 
       } else {
         response(401, { message: `Пароль не верный.` }, res)
@@ -168,7 +168,6 @@ export default class UserController {
       const userData = TokenService.validateRefreshToken(refreshToken);
       const tokenFromDb = await tokenService.findToken(refreshToken)
       console.log('userData', userData)
-      // console.log('tokenFromDb', tokenFromDb)
       if (!userData || !tokenFromDb) {
         return response(400, "Unauthorisation Error", res);
       }
