@@ -17,7 +17,7 @@ const start = async () => {
     const PORT = process.env.PORT
     const app = express()
     // await Connection.getInstance()
-    app.use(cors({ credentials: true, origin: [process.env.SITE_URL, 'https://page-builder.netlify.app'] })); // 
+    app.use(cors({ credentials: true, origin: ['https://page-builder.netlify.app', process.env.SITE_URL] })); // 
     app.use(express.json());
     app.use(cookieParser());
     // app.use(
