@@ -71,8 +71,8 @@ export default class UserController {
       console.log('tokens', tokens)
       await tokenService.saveToken(insertId, tokens.refreshToken)
 
-      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true}) // sameSite: 'none', secure: true
-      response(200, {text: `Registration is successful`, token: tokens.accessToken}, res)
+      res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true }) // sameSite: 'none', secure: true
+      response(200, { text: `Registration is successful`, token: tokens.accessToken }, res)
 
     } catch (err) {
       console.log(err)
@@ -80,6 +80,40 @@ export default class UserController {
     }
 
   }
+
+
+  updateUser = async (req, res) => {
+    try {
+
+      const userId = await TokenService.getUserIdFromHeader(req)
+      const { name, email, oldPassword, newPassword } = req.body
+      console.log('body', req.body)
+      const user = await this.userModel.getUserByid(userId)
+      if (!user) {
+        response(401, { message: `Пользователь с userId - ${userId} не найден. Пройдите регистрацию.` }, res)
+        return
+      }
+      // console.log(user)
+      if (oldPassword && newPassword) {
+        const passwordEqual = bcrypt.compareSync(oldPassword, user.password)
+        if (!passwordEqual) {
+          return response(401, { message: `Пароль не верный.` }, res)
+        }
+      }
+
+      const salt = bcrypt.genSaltSync(15)
+      const passwordHash = newPassword? await bcrypt.hash(newPassword, salt): null
+      const answer = await this.userModel.updateUser(name, email, userId, passwordHash )
+
+      response(200, answer, res)
+
+    } catch (err) {
+      console.log(err)
+      response(500, err, res);
+    }
+
+  }
+
 
   sendActivationMail(email) {
     const activationLink = uuidv4()
@@ -104,7 +138,7 @@ export default class UserController {
           email: answer.email
         })
         await tokenService.saveToken(answer.id, tokens.refreshToken)
-        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true , sameSite: 'none', secure: true})
+        res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true })
         // console.log(res)
         response(200, { id: answer.id, token: tokens.accessToken }, res)
 

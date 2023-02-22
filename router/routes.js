@@ -11,6 +11,7 @@ const dataController = new DataController()
 
 router.get('/users', pass, userController.getAllUsers)
 router.get('/user', pass, userController.getUser)
+router.put('/user', pass, userController.updateUser)
 // .get(passport.authenticate('jwt', { session: false }), getAllUsers)
 router.post('/auth/registration',
   body('email').isEmail(),
@@ -18,7 +19,6 @@ router.post('/auth/registration',
   userController.registration)
 router.post('/auth/login', userController.login)
 router.get('/auth/logout', pass, userController.logout)
-
 router.post('/auth/refresh', userController.refresh)
 router.get('/auth/activate/:link', userController.activate)
 
