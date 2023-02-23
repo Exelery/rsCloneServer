@@ -11,22 +11,23 @@ export default class DataModel {
   constructor() {
     this.dataPath = process.cwd() + '/data'
     mkdir(`${this.dataPath}`, { recursive: true })
+    this.initConnection()
   }
   
   async initConnection() {
-    this.bd = await Connection.getInstance()
+    this.bd = await Connection.createPool()
   }
 
   async selectAllProjects(userId) {
-    await this.initConnection()
+    // await this.initConnection()
     
     const sql = `SELECT * FROM ${process.env.TABLEUSERDATANAME} where userId = ${userId}`
     const result = await this.bd.query(sql)
+    // await this.bd.end()
     return result[0]
   }
 
   async getUserData(userId) {
-    await this.initConnection()
     const result = await this.selectAllProjects(userId)
     if (result.length === 0) {
       return []
@@ -48,7 +49,7 @@ export default class DataModel {
   }
 
   async addNewProjects(userId, projectName, data) {
-    await this.initConnection()
+    // await this.initConnection()
     const allProjects = await this.selectAllProjects(userId)
     const projectId = allProjects.length ? allProjects[allProjects.length - 1].projectId + 1 : 0
 
@@ -56,27 +57,30 @@ export default class DataModel {
       VALUES (${userId}, ${projectId}, '${projectName}');`
     this.writeProjectFiles(userId, projectId, data)
     const result = await this.bd.query(sql)
+    // await this.bd.end()
     return { result: result, projectId: projectId }
   }
 
 
   async updateProject(userId, projectId, projectName, data) {
-    await this.initConnection()
+    // await this.initConnection()
     const sql = `UPDATE ${process.env.TABLEUSERDATANAME}
     SET projectName = '${projectName}'
     WHERE projectId = ${projectId} AND userId = ${userId}`
     const answer = await this.bd.query(sql)
     this.writeProjectFiles(userId, projectId, data)
+    // await this.bd.end()
     return answer
 
   }
 
   async deleteProject(userId, projectId) {
-    await this.initConnection()
+    // await this.initConnection()
     try {
       const sql = `DELETE FROM ${process.env.TABLEUSERDATANAME}
     WHERE projectId = ${projectId} AND userId = ${userId};`
       const answer = await this.bd.query(sql, projectId)
+      // await this.bd.end()
       await rm((`${this.dataPath}/${userId}/${projectId}/`), { recursive: true })
       return true
     } catch (err) {

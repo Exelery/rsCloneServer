@@ -1,4 +1,5 @@
 import mysqlPromise from 'mysql2/promise.js';
+import mysql from 'mysql2';
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -25,6 +26,18 @@ export default class Connection {
 
   static query(sql, values) {
     return Connection.connection.query(sql, values);
+  }
+  
+  static async createPool() {
+    const connection =  mysql.createPool({
+      connectionLimit: 999,
+      host: process.env.HOST,
+      port: process.env.DBPORT,
+      user: process.env.DBUSER,
+      password: process.env.DBPASSWORD,
+      database: process.env.DBNAME
+    }).promise();
+    return connection
   }
 }
 
