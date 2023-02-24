@@ -7,20 +7,20 @@ import Connection from '../databases/createConnection.js';
 
 export default class DataModel {
   bd;
-  
+
   constructor() {
     this.dataPath = process.cwd() + '/data'
     mkdir(`${this.dataPath}`, { recursive: true })
     this.initConnection()
   }
-  
+
   async initConnection() {
     this.bd = await Connection.createPool()
   }
 
   async selectAllProjects(userId) {
     // await this.initConnection()
-    
+
     const sql = `SELECT * FROM ${process.env.TABLEUSERDATANAME} where userId = ${userId}`
     const result = await this.bd.query(sql)
     // await this.bd.end()
@@ -33,19 +33,29 @@ export default class DataModel {
       return []
     }
     const answer = await Promise.all(result.map(async (data) => {
-      const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
-      const files = await Promise.all(projetfileNames.map(async fileName => {
-        const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
-        return { fileName: fileName, content: content }
-      }))
-      return {
-        projectId: data.projectId,
-        projectName: data.projectName,
-        projectFiles: files
+      try {
+        const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
+
+        const files = await Promise.all(projetfileNames.map(async fileName => {
+          try {
+            const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
+            return { fileName: fileName, content: content }
+          } catch (err) {
+            console.log(err)
+          }
+        }))
+        return {
+          projectId: data.projectId,
+          projectName: data.projectName,
+          projectFiles: files
+        }
+      } catch (err) {
+        console.log(err)
       }
 
+
     }))
-    return answer
+    return answer.filter(el => !!el)
   }
 
   async addNewProjects(userId, projectName, data) {
@@ -85,7 +95,7 @@ export default class DataModel {
       return true
     } catch (err) {
       console.log(err)
-      return  false
+      return false
     }
 
 
