@@ -3,6 +3,7 @@ import DataDB from '../databases/dataDb.js'
 import { response } from '../response.js'
 import DataModel from '../models/dataModel.js';
 import TokenService from '../services/token-service.js';
+import bindProject from '../utils/binding.js';
 dotenv.config()
 
 export default class DataController {
@@ -23,12 +24,10 @@ export default class DataController {
 
   getUserProjects = async (req, res) => {
     try {
-      console.log('cookies',req.cookies)
+      console.log('cookies', req.cookies)
 
       const userId = await TokenService.getUserIdFromHeader(req)
       console.log('userId', userId)
-      // const { userId } = req.body
-      // console.log('getprojets', temp.id)
       const answer = await this.dataModel.getUserData(userId)
       console.log(answer)
       if (!answer) {
@@ -77,7 +76,6 @@ export default class DataController {
   deleteProject = async (req, res) => {
     try {
       const { projectId } = req.body
-      console.log(req.data)
       const userId = await TokenService.getUserIdFromHeader(req)
 
       const answer = await this.dataModel.deleteProject(userId, projectId)
@@ -87,6 +85,26 @@ export default class DataController {
       } else {
         response(302, `Project ${projectId} doesn't exist`, res)
       }
+    } catch (err) {
+      console.log(err)
+      response(500, err, res)
+    }
+  }
+
+  bindProject = async (req, res) => {
+    try {
+      const { projectId } = req.body
+      console.log(projectId)
+      
+      const userId = await TokenService.getUserIdFromHeader(req)
+      const project = await this.dataModel.getProjectByid(userId, projectId)
+      // console.log('project', project)
+      const json = await this.dataModel.readProjectFiles(project)
+      // console.log('json', json.projectFiles[0].content)
+      const answer = await bindProject(json.projectFiles[0].content)
+      // console.log('answer bind', answer)
+      response(200, answer, res)
+      
     } catch (err) {
       console.log(err)
       response(500, err, res)

@@ -19,11 +19,9 @@ export default class DataModel {
   }
 
   async selectAllProjects(userId) {
-    // await this.initConnection()
 
     const sql = `SELECT * FROM ${process.env.TABLEUSERDATANAME} where userId = ${userId}`
     const result = await this.bd.query(sql)
-    // await this.bd.end()
     return result[0]
   }
 
@@ -33,33 +31,12 @@ export default class DataModel {
       return []
     }
     const answer = await Promise.all(result.map(async (data) => {
-      try {
-        const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
-
-        const files = await Promise.all(projetfileNames.map(async fileName => {
-          try {
-            const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
-            return { fileName: fileName, content: content }
-          } catch (err) {
-            console.log(err)
-          }
-        }))
-        return {
-          projectId: data.projectId,
-          projectName: data.projectName,
-          projectFiles: files
-        }
-      } catch (err) {
-        console.log(err)
-      }
-
-
+      return await this.readProjectFiles(data)
     }))
     return answer.filter(el => !!el)
   }
 
   async addNewProjects(userId, projectName, data) {
-    // await this.initConnection()
     const allProjects = await this.selectAllProjects(userId)
     const projectId = allProjects.length ? allProjects[allProjects.length - 1].projectId + 1 : 0
 
@@ -67,30 +44,25 @@ export default class DataModel {
       VALUES (${userId}, ${projectId}, '${projectName}');`
     this.writeProjectFiles(userId, projectId, data)
     const result = await this.bd.query(sql)
-    // await this.bd.end()
     return { result: result, projectId: projectId }
   }
 
 
   async updateProject(userId, projectId, projectName, data) {
-    // await this.initConnection()
     const sql = `UPDATE ${process.env.TABLEUSERDATANAME}
     SET projectName = '${projectName}'
     WHERE projectId = ${projectId} AND userId = ${userId}`
     const answer = await this.bd.query(sql)
     this.writeProjectFiles(userId, projectId, data)
-    // await this.bd.end()
     return answer
 
   }
 
   async deleteProject(userId, projectId) {
-    // await this.initConnection()
     try {
       const sql = `DELETE FROM ${process.env.TABLEUSERDATANAME}
     WHERE projectId = ${projectId} AND userId = ${userId};`
       const answer = await this.bd.query(sql, projectId)
-      // await this.bd.end()
       await rm((`${this.dataPath}/${userId}/${projectId}/`), { recursive: true })
       return true
     } catch (err) {
@@ -100,11 +72,36 @@ export default class DataModel {
 
 
   }
+  async readProjectFiles(data) {
+    try {
+      const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
 
+      const files = await Promise.all(projetfileNames.map(async fileName => {
+        const content = await readFile(`${this.dataPath}/${data.userId}/${data.projectId}/${fileName}`, 'utf8')
+        return { fileName: fileName, content: content }
+      }))
+      return {
+        projectId: data.projectId,
+        projectName: data.projectName,
+        projectFiles: files
+      }
+    } catch (err) {
+      console.log(err)
+    }
+
+  }
   writeProjectFiles = async (id, projectName, data) => {
     await mkdir(`${this.dataPath}/${id}/${projectName}`, { recursive: true })
     data.forEach(el => {
       writeFile(`${this.dataPath}/${id}/${projectName}/${el.fileName}`, el.content)
     })
+  }
+
+  async getProjectByid(userId, projectId) {
+    const sqlCheck = `SELECT * FROM ${process.env.TABLEUSERDATANAME}  WHERE projectId = ? AND userId = ?`;
+    const answer = await this.bd.query(sqlCheck, [projectId, userId])
+    // console.log('project by id',answer[0])
+    // const json = 
+    return answer[0][0]
   }
 }
