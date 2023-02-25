@@ -126,7 +126,7 @@ export default class DataController {
       const dataPath = __dirname + '/data'
       const {hash, file} = req.params
       console.log("test", hash, file)
-      if (await this.dataModel.checkBindingProject(hash)) {
+      if (await this.dataModel.checkBindingProject(hash, file)) {
         console.log(`${dataPath}/bind/${hash}/${file}`)
         res.sendFile(`${dataPath}/bind/${hash}/${file}`)
       } else {

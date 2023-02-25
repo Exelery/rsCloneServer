@@ -133,9 +133,9 @@ export default class DataModel {
     return !!answer[0][0]
   }
   
-  async checkBindingProject(hash) {
+  async checkBindingProject(hash, file) {
     try {
-      const projetfileNames = await access(`${this.dataPath}/bind/${hash}/main.html`)
+      const projetfileNames = await access(`${this.dataPath}/bind/${hash}/${file}`)
       return true
     } catch (err) {
       console.log(err)
