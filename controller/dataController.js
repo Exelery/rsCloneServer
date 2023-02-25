@@ -102,39 +102,43 @@ export default class DataController {
       const project = await this.dataModel.getProjectByid(userId, projectId)
       // console.log('project', project)
       const json = await this.dataModel.readProjectFiles(project)
-      // console.log('json', json.projectFiles[0].content)
-      const data = await generate(json.projectFiles[0].content)
-      // console.log('answer bind', answer)
+      // console.log('json', json.projectFiles)
       const hash = await this.dataModel.setBindHash(userId, projectId)
-      const temp = await this.dataModel.writeBindingFile(data, hash)
+      await Promise.all(json.projectFiles.map(async file => {
+        const data = generate(file.content)
+        
+        const temp = await this.dataModel.writeBindingFile(data, hash, file.fileName)
+
+      }))
       console.log("hash", hash)
-      response(200, `${process.env.API_URL}/api/page/${hash}`, res)
+      // console.log('answer bind', answer)
+
+      response(200, `${process.env.API_URL}/api/page/${hash}`, res) // /main.html
 
     } catch (err) {
       console.log(err)
       response(500, err, res)
     }
   }
-  
+
   findBindingProjectByUrl = async (req, res) => {
     try {
       const dataPath = process.cwd() + '/data'
-      const userId = 6 // await TokenService.getUserIdFromHeader(req)
       const hash = req.params.hash
       console.log(hash)
-      if(await this.dataModel.checkBindingProject(hash)) {
-        console.log(`${dataPath}/bind/${hash}.html`)
-        res.sendFile(`${dataPath}/bind/${hash}.html`)
-      } else{
+      if (await this.dataModel.checkBindingProject(hash)) {
+        console.log(`${dataPath}/bind/${hash}/main.html`)
+        res.sendFile(`${dataPath}/bind/${hash}/main.html`)
+      } else {
         return response(404, 'no such file', res)
       }
-      
+
     } catch (err) {
       console.log(err)
       response(500, err, res)
     }
   }
-  
-  
+
+
 
 }

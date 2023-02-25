@@ -3,6 +3,7 @@ dotenv.config()
 import { readFile, writeFile, unlink, mkdir, readdir, rm , access} from 'fs/promises';
 import Connection from '../databases/createConnection.js';
 import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
 
 
 
@@ -107,9 +108,9 @@ export default class DataModel {
     })
   }
 
-  writeBindingFile = async (data, hash) => {
-    await mkdir(`${this.dataPath}/bind`, { recursive: true })
-    await writeFile(`${this.dataPath}/bind/${hash}.html`, data)
+  writeBindingFile = async (data, hash, name) => {
+    await mkdir(`${this.dataPath}/bind/${hash}`, { recursive: true })
+    await writeFile(`${this.dataPath}/bind/${hash}/${path.parse(name).name}.html`, data)
   }
 
   setBindHash = async (userId, projectId) => {
@@ -133,7 +134,7 @@ export default class DataModel {
   
   async checkBindingProject(hash) {
     try {
-      const projetfileNames = await access(`${this.dataPath}/bind/${hash}.html`)
+      const projetfileNames = await access(`${this.dataPath}/bind/${hash}/main.html`)
       return true
     } catch (err) {
       console.log(err)
