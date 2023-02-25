@@ -113,7 +113,7 @@ export default class DataController {
       console.log("hash", hash)
       // console.log('answer bind', answer)
 
-      response(200, `${process.env.API_URL}/api/page/${hash}/main.html`, res) // /main.html
+      response(200, `${process.env.API_URL}/api/page/${hash}/Main.html`, res) // /main.html
 
     } catch (err) {
       console.log(err)
