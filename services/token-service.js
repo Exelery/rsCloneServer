@@ -66,7 +66,7 @@ export default class TokenService {
   static validateAccessToken = (token) => {
     try {
       const data = jwt.verify(token, process.env.JWT_ACCESS)
-      console.log(data)
+      console.log("jwt.verify", data)
       return data
     } catch (err) {
       return null

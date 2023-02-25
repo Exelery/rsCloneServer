@@ -4,7 +4,7 @@ dotenv.config()
 
 export default class UsersDB {
   async initBd() {
-    const authDb = await Connection.getInstance()
+    const authDb = await Connection.createPool()
     const createTable =`CREATE TABLE IF NOT EXISTS ${process.env.TABLENAME} (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(200) NOT NULL,

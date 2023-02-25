@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import { readFile, writeFile, unlink, mkdir, readdir, rm } from 'fs/promises';
 import Connection from '../databases/createConnection.js';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -90,13 +91,7 @@ export default class DataModel {
     }
 
   }
-  writeProjectFiles = async (id, projectName, data) => {
-    await mkdir(`${this.dataPath}/${id}/${projectName}`, { recursive: true })
-    data.forEach(el => {
-      writeFile(`${this.dataPath}/${id}/${projectName}/${el.fileName}`, el.content)
-    })
-  }
-
+  
   async getProjectByid(userId, projectId) {
     const sqlCheck = `SELECT * FROM ${process.env.TABLEUSERDATANAME}  WHERE projectId = ? AND userId = ?`;
     const answer = await this.bd.query(sqlCheck, [projectId, userId])
@@ -104,4 +99,28 @@ export default class DataModel {
     // const json = 
     return answer[0][0]
   }
+  
+  writeProjectFiles = async (id, projectName, data) => {
+    await mkdir(`${this.dataPath}/${id}/${projectName}`, { recursive: true })
+    data.forEach(el => {
+      writeFile(`${this.dataPath}/${id}/${projectName}/${el.fileName}`, el.content)
+    })
+  }
+
+  writeBindingFile = async (data, hash) => {
+    await mkdir(`${this.dataPath}/${bind}`, { recursive: true })
+    await writeFile(`${this.dataPath}//${bind}/${hash}.html`, data)
+  }
+
+  setBindHash = async (userId, projectId) => {
+    const bildHash = uuidv4()
+    const sql = `UPDATE ${process.env.TABLEUSERDATANAME}
+    SET bildHash = '${bildHash}'
+    WHERE projectId = ${projectId} AND userId = ${userId}`
+    const answer = await this.bd.query(sql)
+    return bildHash
+
+  }
+
+  
 }

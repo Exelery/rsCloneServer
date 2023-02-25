@@ -26,4 +26,5 @@ router.put('/data', pass, dataController.updateProject)
 router.post('/data', pass, dataController.addProject)
 router.get('/data', pass, dataController.getUserProjects)
 router.delete('/data', pass, dataController.deleteProject)
-router.post('/data/bind', dataController.bindProject)
+router.post('/data/bind', pass, dataController.bindProject)
+

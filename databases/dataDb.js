@@ -4,12 +4,13 @@ dotenv.config()
 
 export default class DataDB {
   async initBd() {
-    const dataDb = await Connection.getInstance()
+    const dataDb = await Connection.createPool()
     const createTable = `CREATE TABLE IF NOT EXISTS ${process.env.TABLEUSERDATANAME} (
       id INT AUTO_INCREMENT PRIMARY KEY,
       userId INT NOT NULL,
       projectId INT NOT NULL,
-      projectName VARCHAR(255)
+      projectName VARCHAR(255),
+      bildHash VARCHAR(255)
     );`
     // path VARCHAR(255)
     

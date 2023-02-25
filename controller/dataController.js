@@ -3,22 +3,17 @@ import DataDB from '../databases/dataDb.js'
 import { response } from '../response.js'
 import DataModel from '../models/dataModel.js';
 import TokenService from '../services/token-service.js';
-import bindProject from '../utils/binding.js';
+import generate from '../utils/binding.js';
 dotenv.config()
 
 export default class DataController {
-  bd;
   dataModel
   constructor() {
     this.initDatase()
   }
 
   initDatase = async () => {
-    const dataBd = new DataDB()
-    if (!this.bd) {
-      this.bd = await dataBd.initBd()
-      this.dataModel = new DataModel()
-    }
+    this.dataModel = new DataModel()
 
   }
 
@@ -95,20 +90,24 @@ export default class DataController {
     try {
       const { projectId } = req.body
       console.log(projectId)
-      
+
       const userId = await TokenService.getUserIdFromHeader(req)
       const project = await this.dataModel.getProjectByid(userId, projectId)
       // console.log('project', project)
       const json = await this.dataModel.readProjectFiles(project)
       // console.log('json', json.projectFiles[0].content)
-      const answer = await bindProject(json.projectFiles[0].content)
+      const answer = await generate(json.projectFiles[0].content)
       // console.log('answer bind', answer)
+      const hash = await this.dataModel.setBindHash(userId, projectId)
+      console.log("hash", hash)
       response(200, answer, res)
-      
+
     } catch (err) {
       console.log(err)
       response(500, err, res)
     }
   }
+  
+  
 
 }

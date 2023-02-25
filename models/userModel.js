@@ -9,7 +9,7 @@ export default class UserModel {
   }
 
   async initConnection() {
-    this.bd = await Connection.getInstance()
+    this.bd = await Connection.createPool()
   }
 
 

@@ -4,7 +4,7 @@ dotenv.config()
 
 export default class TokenDB {
   async initBd() {
-    const dataDb = await Connection.getInstance()
+    const dataDb = await Connection.createPool()
     const createTable = `CREATE TABLE IF NOT EXISTS ${process.env.TABLETOKENNAME} (
       id INT AUTO_INCREMENT PRIMARY KEY,
       userId INT NOT NULL UNIQUE,
