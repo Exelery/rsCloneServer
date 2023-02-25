@@ -111,6 +111,7 @@ export default class DataModel {
   writeBindingFile = async (data, hash, name) => {
     await mkdir(`${this.dataPath}/bind/${hash}`, { recursive: true })
     await writeFile(`${this.dataPath}/bind/${hash}/${path.parse(name).name}.html`, data)
+    console.log(`${this.dataPath}/bind/${hash}/${path.parse(name).name}.html`)
   }
 
   setBindHash = async (userId, projectId) => {
