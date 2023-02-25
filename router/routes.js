@@ -35,7 +35,7 @@ router.get('/data', pass, dataController.getUserProjects)
 router.delete('/data', pass, dataController.deleteProject)
 router.post('/data/bind', pass, dataController.bindProject)
 
-router.get('/page/:hash', dataController.findBindingProjectByUrl );
+router.get('/page/:hash/:file', dataController.findBindingProjectByUrl );
 
 // function(req, res) {
 //   res.sendFile(__dirname + '/test.html');

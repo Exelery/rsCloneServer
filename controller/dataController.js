@@ -96,7 +96,7 @@ export default class DataController {
   bindProject = async (req, res) => {
     try {
       const { projectId } = req.body
-      console.log(projectId)
+      console.log("projectId", projectId)
 
       const userId = await TokenService.getUserIdFromHeader(req)
       const project = await this.dataModel.getProjectByid(userId, projectId)
@@ -113,7 +113,7 @@ export default class DataController {
       console.log("hash", hash)
       // console.log('answer bind', answer)
 
-      response(200, `${process.env.API_URL}/api/page/${hash}`, res) // /main.html
+      response(200, `${process.env.API_URL}/api/page/${hash}/main.html`, res) // /main.html
 
     } catch (err) {
       console.log(err)
@@ -124,11 +124,11 @@ export default class DataController {
   findBindingProjectByUrl = async (req, res) => {
     try {
       const dataPath = process.cwd() + '/data'
-      const hash = req.params.hash
-      console.log(hash)
+      const {hash, file} = req.params
+      console.log("test", hash, file)
       if (await this.dataModel.checkBindingProject(hash)) {
-        console.log(`${dataPath}/bind/${hash}/main.html`)
-        res.sendFile(`${dataPath}/bind/${hash}/main.html`)
+        console.log(`${dataPath}/bind/${hash}/${file}`)
+        res.sendFile(`${dataPath}/bind/${hash}/${file}`)
       } else {
         return response(404, 'no such file', res)
       }
