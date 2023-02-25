@@ -7,10 +7,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser'
 config()
 
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+// import { dirname, join } from 'path';
+// import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// const __dirname = dirname(fileURLToPath(import.meta.url));
+// console.log(__dirname)
+// console.log(join(__dirname, ".."))
 
 
 
@@ -29,9 +31,6 @@ const start = async () => {
     app.use(passport.initialize())
     jwtPass(passport)
     app.use('/api', router)
-    app.get('/page/:id', function(req, res) {
-      res.sendFile(__dirname + '/test.html');
-    });
 
     app.listen(PORT, () => {
       console.log(`App listen on port ${PORT}`)

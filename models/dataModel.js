@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { readFile, writeFile, unlink, mkdir, readdir, rm } from 'fs/promises';
+import { readFile, writeFile, unlink, mkdir, readdir, rm , access} from 'fs/promises';
 import Connection from '../databases/createConnection.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -108,8 +108,8 @@ export default class DataModel {
   }
 
   writeBindingFile = async (data, hash) => {
-    await mkdir(`${this.dataPath}/${bind}`, { recursive: true })
-    await writeFile(`${this.dataPath}//${bind}/${hash}.html`, data)
+    await mkdir(`${this.dataPath}/bind`, { recursive: true })
+    await writeFile(`${this.dataPath}/bind/${hash}.html`, data)
   }
 
   setBindHash = async (userId, projectId) => {
@@ -121,6 +121,25 @@ export default class DataModel {
     return bildHash
 
   }
+  
+  async getProjectByHash(userId, bildHash) {
+    const sqlCheck = `SELECT * FROM ${process.env.TABLEUSERDATANAME}  WHERE bildHash = ? AND userId = ?`;
+    const answer = await this.bd.query(sqlCheck, [bildHash, userId])
+    console.log(answer[0])
+    // console.log('project by id',answer[0])
+    // const json = 
+    return !!answer[0][0]
+  }
+  
+  async checkBindingProject(hash) {
+    try {
+      const projetfileNames = await access(`${this.dataPath}/bind/${hash}.html`)
+      return true
+    } catch (err) {
+      console.log(err)
+      return false
+    }
 
+  }
   
 }

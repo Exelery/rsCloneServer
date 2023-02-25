@@ -5,6 +5,13 @@ import { body } from 'express-validator'
 import { Router } from 'express'
 import pass from '../middleware/authorisation.js'
 
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = join(dirname(fileURLToPath(import.meta.url)), "..");
+console.log(__dirname)
+
+
 export const router = new Router()
 const userController = new UserController()
 const dataController = new DataController()
@@ -28,3 +35,8 @@ router.get('/data', pass, dataController.getUserProjects)
 router.delete('/data', pass, dataController.deleteProject)
 router.post('/data/bind', pass, dataController.bindProject)
 
+router.get('/page/:hash', dataController.findBindingProjectByUrl );
+
+// function(req, res) {
+//   res.sendFile(__dirname + '/test.html');
+// }
