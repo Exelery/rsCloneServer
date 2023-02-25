@@ -9,7 +9,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = join(dirname(fileURLToPath(import.meta.url)), "..");
-console.log(__dirname)
+console.log('router', __dirname)
 
 
 export const router = new Router()

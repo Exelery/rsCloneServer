@@ -123,7 +123,7 @@ export default class DataController {
 
   findBindingProjectByUrl = async (req, res) => {
     try {
-      const dataPath = process.cwd() + '/data'
+      const dataPath = __dirname + '/data'
       const {hash, file} = req.params
       console.log("test", hash, file)
       if (await this.dataModel.checkBindingProject(hash)) {
