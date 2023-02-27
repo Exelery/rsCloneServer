@@ -100,7 +100,10 @@ export default class DataController {
 
       const userId = await TokenService.getUserIdFromHeader(req)
       const project = await this.dataModel.getProjectByid(userId, projectId)
-      // console.log('project', project)
+      if(!project) {
+        return response(302, "The project doesn't exist", res, "The project doesn't exist")
+      }
+      console.log('project', project)
       const json = await this.dataModel.readProjectFiles(project)
       // console.log('json', json.projectFiles)
       const hash = await this.dataModel.setBindHash(userId, projectId)

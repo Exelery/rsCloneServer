@@ -15,13 +15,6 @@ export default class TokenService {
     }
   }
 
-  async generateTokens(payload) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS, { expiresIn: '30m' })
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH, { expiresIn: '30d' })
-    return {
-      accessToken, refreshToken
-    }
-  }
 
   saveToken = async (userId, refreshToken) => {
     try {
@@ -86,8 +79,26 @@ export default class TokenService {
     const token = req.headers.authorization.split(' ')[1]
     console.log("token", token)
     const temp = TokenService.validateAccessToken(token)
-    console.log(temp)
-    console.log(temp.userId)
+    // console.log(temp)
+    // console.log(temp.userId)
     return temp.userId;
+  }
+
+  generateAndSaveToken = async (id, email) => {
+    const tokens = TokenService.generateTokens({
+      userId: id,
+      email: email
+    })
+    console.log('tokens', tokens)
+    await this.saveToken(id, tokens.refreshToken)
+    return tokens
+  }
+  
+  static  generateTokens(payload) {
+    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS, { expiresIn: '30m' })
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH, { expiresIn: '30d' })
+    return {
+      accessToken, refreshToken
+    }
   }
 }

@@ -67,12 +67,13 @@ export default class UserController {
       const passwordHash = await bcrypt.hash(password, salt)
       const activationLink = this.sendActivationMail(email)
       const insertId = await this.userModel.createUser(name, email, passwordHash, activationLink)
-      const tokens = await tokenService.generateTokens({
-        userId: answer.id,
-        email: answer.email
-      })
-      console.log('tokens', tokens)
-      await tokenService.saveToken(insertId, tokens.refreshToken)
+      // const tokens = await tokenService.generateTokens({
+      //   userId: answer.id,
+      //   email: answer.email
+      // })
+      // console.log('tokens', tokens)
+      // await tokenService.saveToken(insertId, tokens.refreshToken)
+      const tokens = await tokenService.generateAndSaveToken(insertId, email)
 
       res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true }) // sameSite: 'none', secure: true
       response(200, { text: `Registration is successful`, token: tokens.accessToken }, res)
@@ -81,9 +82,9 @@ export default class UserController {
       console.log(err)
       response(500, err, res);
     }
-
   }
-
+  
+  
 
   updateUser = async (req, res) => {
     try {
@@ -130,17 +131,14 @@ export default class UserController {
       const { email, password } = req.body
       const answer = await this.userModel.getUserByEmail(email)
       if (!answer) {
+        
         response(401, { message: `Пользователь с email - ${email} не найден. Пройдите регистрацию.` }, res)
         return
       }
       console.log(answer)
       const passwordEqual = bcrypt.compareSync(password, answer.password)
       if (passwordEqual) {
-        const tokens = await tokenService.generateTokens({
-          userId: answer.id,
-          email: answer.email
-        })
-        await tokenService.saveToken(answer.id, tokens.refreshToken)
+        const tokens = await tokenService.generateAndSaveToken(answer.id, answer.email)
         res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true })
         // console.log(res)
         response(200, { id: answer.id, token: tokens.accessToken }, res)
@@ -186,9 +184,9 @@ export default class UserController {
           return true
         })
       }
-      response(200, rows, res)
+      // response(200, rows, res)
       // await userService.activate(activationLink);
-      // return res.redirect(process.env.CLIENT_URL);
+      return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       console.log(err)
       response(500, err, res);
@@ -214,17 +212,24 @@ export default class UserController {
         return response(401, { message: `Пользователь с id - ${userData.userId} не найден. Пройдите регистрацию.` }, res)
       }
 
-      const tokens = await tokenService.generateTokens({
+      const tokens = TokenService.generateTokens({
         userId: userData.userId,
         email: userData.email
       })
       return response(200, tokens.accessToken, res)
 
-
-
     } catch (err) {
       console.log(err);
       response(500, err, res);
+    }
+  }
+  
+  reset = async () =>{
+    const { email } = req.body
+    const user = await this.userModel.getUserByEmail(email)
+    console.log('user', user)
+    if(!user) {
+      response(404, "", res, "User with this email doesn't exist")
     }
   }
 

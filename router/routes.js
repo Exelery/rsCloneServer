@@ -1,4 +1,3 @@
-import passport from 'passport'
 import UserController from '../controller/userController.js'
 import DataController from '../controller/dataController.js'
 import { body } from 'express-validator'
@@ -19,6 +18,7 @@ const dataController = new DataController()
 router.get('/users', pass, userController.getAllUsers)
 router.get('/user', pass, userController.getUser)
 router.put('/user', pass, userController.updateUser)
+router.post('/user/resetPassword', userController.reset )
 // .get(passport.authenticate('jwt', { session: false }), getAllUsers)
 router.post('/auth/registration',
   body('email').isEmail(),
@@ -28,6 +28,7 @@ router.post('/auth/login', userController.login)
 router.get('/auth/logout', pass, userController.logout)
 router.post('/auth/refresh', userController.refresh)
 router.get('/auth/activate/:link', userController.activate)
+
 
 router.put('/data', pass, dataController.updateProject)
 router.post('/data', pass, dataController.addProject)

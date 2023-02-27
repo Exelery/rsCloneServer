@@ -76,6 +76,7 @@ export default class DataModel {
   }
   async readProjectFiles(data) {
     try {
+      console.log('data', data)
       const projetfileNames = await readdir(`${this.dataPath}/${data.userId}/${data.projectId}`)
 
       const files = await Promise.all(projetfileNames.map(async fileName => {
