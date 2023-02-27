@@ -67,7 +67,10 @@ export default class UserController {
       const passwordHash = await bcrypt.hash(password, salt)
       const activationLink = this.sendActivationMail(email)
       const insertId = await this.userModel.createUser(name, email, passwordHash, activationLink)
-      const tokens = await tokenService.generateTokens({ email: email, id: insertId })
+      const tokens = await tokenService.generateTokens({
+        userId: answer.id,
+        email: answer.email
+      })
       console.log('tokens', tokens)
       await tokenService.saveToken(insertId, tokens.refreshToken)
 
