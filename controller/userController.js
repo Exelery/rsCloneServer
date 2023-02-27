@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import TokenService from '../services/token-service.js'
 import { validationResult } from 'express-validator';
 import UserModel from '../models/userModel.js';
-import generatePassword from '../utils/randompass.js';
+import { generatePassword, hashPassword } from '../utils/password.js';
 
 config()
 
@@ -68,8 +68,7 @@ export default class UserController {
         return true
 
       }
-      const salt = bcrypt.genSaltSync(15)
-      const passwordHash = await bcrypt.hash(password, salt)
+      const passwordHash = await hashPassword(password)
       const activationLink = this.sendActivationMail(email)
       const insertId = await this.userModel.createUser(name, email, passwordHash, activationLink)
       const tokens = await tokenService.generateAndSaveToken(insertId, email)
@@ -104,8 +103,7 @@ export default class UserController {
         }
       }
 
-      const salt = bcrypt.genSaltSync(15)
-      const passwordHash = newPassword ? await bcrypt.hash(newPassword, salt) : null
+      const passwordHash = newPassword ? await hashPassword(newPassword) : null
       const answer = await this.userModel.updateUser(name, email, userId, passwordHash)
 
       response(200, answer, res)
@@ -154,7 +152,7 @@ export default class UserController {
 
   }
 
-  logout = async (req, res, next) => {
+  logout = async (req, res) => {
     try {
       const { refreshToken } = req.cookies;
       console.log(refreshToken)
@@ -166,7 +164,7 @@ export default class UserController {
     }
   }
 
-  activate = async (req, res, next) => {
+  activate = async (req, res) => {
     try {
       const activationLink = req.params.link;
       console.log(activationLink)
@@ -183,8 +181,6 @@ export default class UserController {
           return true
         })
       }
-      // response(200, rows, res)
-      // await userService.activate(activationLink);
       return res.redirect(process.env.CLIENT_URL);
     } catch (err) {
       console.log(err)
@@ -234,8 +230,7 @@ export default class UserController {
       }
       const tempPass = generatePassword(12)
       console.log("temppass", tempPass)
-      const salt = bcrypt.genSaltSync(15)
-      const passwordHash = await bcrypt.hash(tempPass, salt)
+      const passwordHash = await hashPassword(tempPass)
       await this.mailService.sendPassword(email, tempPass)
       await this.userModel.setNewPassword(email, passwordHash)
       response(200, "new password sended", res, "New Pasword was sended to your email address")
@@ -243,7 +238,6 @@ export default class UserController {
       console.log(err);
       response(500, err, res);
     }
-
   }
 
 }
