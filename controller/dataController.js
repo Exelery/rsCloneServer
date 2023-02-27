@@ -17,9 +17,12 @@ export default class DataController {
   dataModel
   constructor() {
     this.initDatase()
+
   }
 
   initDatase = async () => {
+    const dataBd = new DataDB()
+    await dataBd.initBd()
     this.dataModel = new DataModel()
 
   }
@@ -100,7 +103,7 @@ export default class DataController {
 
       const userId = await TokenService.getUserIdFromHeader(req)
       const project = await this.dataModel.getProjectByid(userId, projectId)
-      if(!project) {
+      if (!project) {
         return response(302, "The project doesn't exist", res, "The project doesn't exist")
       }
       console.log('project', project)
@@ -109,7 +112,7 @@ export default class DataController {
       const hash = await this.dataModel.setBindHash(userId, projectId)
       await Promise.all(json.projectFiles.map(async file => {
         const data = generate(file.content)
-        
+
         const temp = await this.dataModel.writeBindingFile(data, hash, file.fileName)
 
       }))
@@ -127,7 +130,7 @@ export default class DataController {
   findBindingProjectByUrl = async (req, res) => {
     try {
       const dataPath = __dirname + '/data'
-      const {hash, file} = req.params
+      const { hash, file } = req.params
       console.log("test", hash, file)
       if (await this.dataModel.checkBindingProject(hash, file)) {
         console.log(`${dataPath}/bind/${hash}/${file}`)

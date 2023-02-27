@@ -7,6 +7,7 @@ import { config } from 'dotenv';
 import TokenService from '../services/token-service.js'
 import { validationResult } from 'express-validator';
 import UserModel from '../models/userModel.js';
+import generatePassword from '../utils/randompass.js';
 
 config()
 
@@ -14,6 +15,7 @@ const tokenService = new TokenService()
 export default class UserController {
   bd;
   userModel;
+  mailService;
 
   constructor() {
     this.initDatase()
@@ -21,6 +23,8 @@ export default class UserController {
 
   initDatase = async () => {
     const userBd = new UsersDB()
+    this.mailService = new MailService()
+
     if (!this.bd) {
       this.bd = await userBd.initBd()
       this.userModel = new UserModel()
@@ -43,6 +47,7 @@ export default class UserController {
       const temp = TokenService.validateAccessToken(token)
       const answer = await this.userModel.getUserByEmail(temp.email)
       console.log(answer)
+      delete answer.password
       response(200, answer, res)
     } catch (err) {
       console.log(err)
@@ -67,12 +72,6 @@ export default class UserController {
       const passwordHash = await bcrypt.hash(password, salt)
       const activationLink = this.sendActivationMail(email)
       const insertId = await this.userModel.createUser(name, email, passwordHash, activationLink)
-      // const tokens = await tokenService.generateTokens({
-      //   userId: answer.id,
-      //   email: answer.email
-      // })
-      // console.log('tokens', tokens)
-      // await tokenService.saveToken(insertId, tokens.refreshToken)
       const tokens = await tokenService.generateAndSaveToken(insertId, email)
 
       res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true }) // sameSite: 'none', secure: true
@@ -83,8 +82,8 @@ export default class UserController {
       response(500, err, res);
     }
   }
-  
-  
+
+
 
   updateUser = async (req, res) => {
     try {
@@ -94,20 +93,20 @@ export default class UserController {
       console.log('body', req.body)
       const user = await this.userModel.getUserByid(userId)
       if (!user) {
-        response(401, { message: `Пользователь с userId - ${userId} не найден. Пройдите регистрацию.` }, res)
+        response(404, { message: `Пользователь с userId - ${userId} не найден. Пройдите регистрацию.` }, res)
         return
       }
       // console.log(user)
       if (oldPassword && newPassword) {
         const passwordEqual = bcrypt.compareSync(oldPassword, user.password)
         if (!passwordEqual) {
-          return response(401, { message: `Пароль не верный.` }, res)
+          return response(402, { message: `Пароль не верный.` }, res)
         }
       }
 
       const salt = bcrypt.genSaltSync(15)
-      const passwordHash = newPassword? await bcrypt.hash(newPassword, salt): null
-      const answer = await this.userModel.updateUser(name, email, userId, passwordHash )
+      const passwordHash = newPassword ? await bcrypt.hash(newPassword, salt) : null
+      const answer = await this.userModel.updateUser(name, email, userId, passwordHash)
 
       response(200, answer, res)
 
@@ -121,8 +120,8 @@ export default class UserController {
 
   sendActivationMail(email) {
     const activationLink = uuidv4()
-    const mailService = new MailService()
-    mailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`)
+    // const mailService = new MailService()
+    this.mailService.sendActivationMail(email, `${process.env.API_URL}/api/auth/activate/${activationLink}`)
     return activationLink
   }
 
@@ -131,8 +130,8 @@ export default class UserController {
       const { email, password } = req.body
       const answer = await this.userModel.getUserByEmail(email)
       if (!answer) {
-        
-        response(401, { message: `Пользователь с email - ${email} не найден. Пройдите регистрацию.` }, res)
+
+        response(404, { message: `Пользователь с email - ${email} не найден. Пройдите регистрацию.` }, res)
         return
       }
       console.log(answer)
@@ -144,7 +143,7 @@ export default class UserController {
         response(200, { id: answer.id, token: tokens.accessToken }, res)
 
       } else {
-        response(401, { message: `Пароль не верный.` }, res)
+        response(402, { message: `Пароль не верный.` }, res)
 
       }
 
@@ -209,7 +208,7 @@ export default class UserController {
       }
       const userExist = await this.userModel.checkUserExistByEmail(userData.email)
       if (!userExist) {
-        return response(401, { message: `Пользователь с id - ${userData.userId} не найден. Пройдите регистрацию.` }, res)
+        return response(402, { message: `Пользователь с id - ${userData.userId} не найден. Пройдите регистрацию.` }, res)
       }
 
       const tokens = TokenService.generateTokens({
@@ -223,14 +222,28 @@ export default class UserController {
       response(500, err, res);
     }
   }
-  
-  reset = async () =>{
-    const { email } = req.body
-    const user = await this.userModel.getUserByEmail(email)
-    console.log('user', user)
-    if(!user) {
-      response(404, "", res, "User with this email doesn't exist")
+
+  reset = async (req, res) => {
+    try {
+      const { email } = req.body
+      console.log('email', email)
+      const user = await this.userModel.getUserByEmail(email)
+      console.log('user', user)
+      if (!user) {
+        response(404, user, res, "User with this email doesn't exist")
+      }
+      const tempPass = generatePassword(12)
+      console.log("temppass", tempPass)
+      const salt = bcrypt.genSaltSync(15)
+      const passwordHash = await bcrypt.hash(tempPass, salt)
+      await this.mailService.sendPassword(email, tempPass)
+      await this.userModel.setNewPassword(email, passwordHash)
+      response(200, "new password sended", res, "New Pasword was sended to your email address")
+    } catch (err) {
+      console.log(err);
+      response(500, err, res);
     }
+
   }
 
 }

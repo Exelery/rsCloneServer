@@ -6,9 +6,6 @@ export default class MailService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            // host: process.env.SMTP_HOST,
-            // port: process.env.SMTP_PORT,
-            // secure: false,
             service: 'gmail',
             auth: {
                 user: process.env.SMTP_USER,
@@ -19,8 +16,6 @@ export default class MailService {
     }
 
     async sendActivationMail(to, link) {
-      console.log( process.env.SMTP_USER,
-        process.env.SMTP_PASSWORD)
         const answer = await this.transporter.sendMail({
             from: process.env.SMTP_USER,
             to,
@@ -34,6 +29,23 @@ export default class MailService {
                     </div>
                 `
         })
-        console.log('message was sent', answer)
+        console.log('message was sent')
+    }
+    
+    async sendPassword(to, password) {
+        const answer = await this.transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to,
+            subject: 'Восстановление пароля' + process.env.API_URL,
+            text: '',
+            html:
+                `
+                    <div>
+                        <h1>Ваш временный пароль</h1>
+                        <p>${password}</p>
+                    </div>
+                `
+        })
+        console.log('password was sent')
     }
 }

@@ -42,11 +42,9 @@ export default class UserModel {
   }
 
   async getUserByEmail(email) {
-    // await this.initConnection()
     const sqlCheck = `SELECT id, name, email, password, isActivated FROM ${process.env.TABLENAME} WHERE email = "${email}"`;
     const answer = await this.bd.query(sqlCheck)
-    // await this.bd.end()
-    // return answer[0].length > 0
+ 
     return answer[0][0]
   }
 
@@ -55,18 +53,29 @@ export default class UserModel {
   }
 
   async getUserByid(userId) {
-    // await this.initConnection()
     const sqlCheck = `SELECT id, email, password FROM ${process.env.TABLENAME} WHERE id = ${userId}`;
     const answer = await this.bd.query(sqlCheck)
-    // await this.bd.end()
     return answer[0][0]
   }
 
   async getAllUsers() {
-    // await this.initConnection()
     const answer = await this.bd.query(`SELECT id, email password FROM ${process.env.TABLENAME}`)
-    // await this.bd.end()
     return answer[0]
+  }
+  
+  async setNewPassword (email, passwordHash) {
+    // await this.initConnection()
+    const sql = `UPDATE ${process.env.TABLENAME}
+                    SET password = ?
+                    WHERE email = ?`;
+
+    const values = [passwordHash, email];
+    console.log('values', values)
+    const answer = await this.bd.query(sql, values)
+    console.log('answer', answer)
+    // await this.bd.end()
+
+    return answer
   }
 
 

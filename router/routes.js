@@ -18,7 +18,7 @@ const dataController = new DataController()
 router.get('/users', pass, userController.getAllUsers)
 router.get('/user', pass, userController.getUser)
 router.put('/user', pass, userController.updateUser)
-router.post('/user/resetPassword', userController.reset )
+router.post('/user/resetpass', userController.reset )
 // .get(passport.authenticate('jwt', { session: false }), getAllUsers)
 router.post('/auth/registration',
   body('email').isEmail(),

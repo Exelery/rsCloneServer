@@ -4,30 +4,25 @@ export default function generate(json) {
 
   let htmlString = '';
 
-  jsonData.forEach((block) => { // {data: string, html: boolean}
+  jsonData.forEach((block) => {
     if (block.html) {
       htmlString += block.data;
     }
   });
 
-  jsonData.forEach((block) => { //{data: string, html: boolean, name: string}
+  jsonData.forEach((block) => { 
     if (!block.html && block.name.includes(".js")) {
       htmlString += `<script> ${block.data} </script>`;
     }
   });
 
 
-  jsonData.forEach((block) => {  //{data: string, html: boolean, name: string}
+  jsonData.forEach((block) => {  
     if (!block.html && block.name.includes(".css")) {
       htmlHeader += `<style> ${block.data} </style>`;
     }
   });
 
-  // let myWindow = window.open();
-  // myWindow.document.write(this.htmlHeader + "</head>" + htmlString.replace(/scripter/g, "script"));
-  // console.log('binding', htmlHeader + "</head>" + htmlString)
   return htmlHeader + "</head>" + htmlString
 }
 
-// const answer = bindProject(json)
-// console.log(answer)
