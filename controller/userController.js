@@ -123,8 +123,24 @@ export default class UserController {
     return activationLink
   }
 
+  activateUserAgain = async (req, res) => {
+    try {
+      const userId = await TokenService.getUserIdFromHeader(req)
+      const user = await this.userModel.getUserByid(userId)
+      await this.mailService.sendActivationMail(user.email, `${process.env.API_URL}/api/auth/activate/${user.activationLink}`)
+      response(200, "mail was sent", res)
+    } catch (err) {
+      console.log(err)
+      response(500, err, res)
+    }
+  }
+
   login = async (req, res) => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return response(400, { error: "Baq request", errors: errors }, res);
+      }
       const { email, password } = req.body
       const answer = await this.userModel.getUserByEmail(email)
       if (!answer) {

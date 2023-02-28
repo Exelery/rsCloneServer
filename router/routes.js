@@ -18,13 +18,15 @@ const dataController = new DataController()
 router.get('/users', pass, userController.getAllUsers)
 router.get('/user', pass, userController.getUser)
 router.put('/user', pass, userController.updateUser)
-router.post('/user/resetpass', userController.reset )
-// .get(passport.authenticate('jwt', { session: false }), getAllUsers)
+router.post('/user/resetpass', userController.reset)
+router.get('/user/activate', userController.activateUserAgain)
+
 router.post('/auth/registration',
   body('email').isEmail(),
   body('password').isLength({ min: 3, max: 32 }),
   userController.registration)
-router.post('/auth/login', userController.login)
+router.post('/auth/login', body('email').isEmail(),
+  body('password').isLength({ min: 3, max: 32 }), userController.login,)
 router.get('/auth/logout', pass, userController.logout)
 router.post('/auth/refresh', userController.refresh)
 router.get('/auth/activate/:link', userController.activate)
@@ -36,8 +38,4 @@ router.get('/data', pass, dataController.getUserProjects)
 router.delete('/data', pass, dataController.deleteProject)
 router.post('/data/bind', pass, dataController.bindProject)
 
-router.get('/page/:hash/:file', dataController.findBindingProjectByUrl );
-
-// function(req, res) {
-//   res.sendFile(__dirname + '/test.html');
-// }
+router.get('/page/:hash/:file', dataController.findBindingProjectByUrl);

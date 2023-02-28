@@ -53,7 +53,7 @@ export default class UserModel {
   }
 
   async getUserByid(userId) {
-    const sqlCheck = `SELECT id, email, password FROM ${process.env.TABLENAME} WHERE id = ${userId}`;
+    const sqlCheck = `SELECT * FROM ${process.env.TABLENAME} WHERE id = ${userId}`;
     const answer = await this.bd.query(sqlCheck)
     return answer[0][0]
   }
