@@ -64,7 +64,7 @@ export default class UserController {
       const { name, email, password } = req.body
       const check = await this.userModel.checkUserExistByEmail(email)
       if (check) {
-        response(302, `User with name - ${email} already exist`, res)
+        response(403, `User with name - ${email} already exist`, res)
         return true
 
       }
@@ -128,7 +128,7 @@ export default class UserController {
       const userId = await TokenService.getUserIdFromHeader(req)
       const user = await this.userModel.getUserByid(userId)
       await this.mailService.sendActivationMail(user.email, `${process.env.API_URL}/api/auth/activate/${user.activationLink}`)
-      response(200, "mail was sent", res)
+      response(200, "Mail was sent", res)
     } catch (err) {
       console.log(err)
       response(500, err, res)
@@ -177,6 +177,7 @@ export default class UserController {
       return response(200, token, res);
     } catch (err) {
       console.log(err);
+      response(500, err, res)
     }
   }
 
@@ -249,7 +250,7 @@ export default class UserController {
       const passwordHash = await hashPassword(tempPass)
       await this.mailService.sendPassword(email, tempPass)
       await this.userModel.setNewPassword(email, passwordHash)
-      response(200, "new password sended", res, "New Pasword was sended to your email address")
+      response(200, "New password was sent", res, "New Pasword was sended to your email address")
     } catch (err) {
       console.log(err);
       response(500, err, res);

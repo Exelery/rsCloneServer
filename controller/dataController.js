@@ -70,7 +70,7 @@ export default class DataController {
       if (answer[0].affectedRows) {
         response(200, `Project ${projectId} updated`, res)
       } else {
-        response(400, `Project ${projectId} doesn't exist`, res)
+        response(404, `Project ${projectId} doesn't exist`, res)
       }
     } catch (err) {
       console.log(err)
@@ -88,7 +88,7 @@ export default class DataController {
       if (answer) {
         response(200, `Project ${projectId} deleted`, res)
       } else {
-        response(302, `Project ${projectId} doesn't exist`, res)
+        response(404, `Project ${projectId} doesn't exist`, res)
       }
     } catch (err) {
       console.log(err)
@@ -104,7 +104,7 @@ export default class DataController {
       const userId = await TokenService.getUserIdFromHeader(req)
       const project = await this.dataModel.getProjectByid(userId, projectId)
       if (!project) {
-        return response(302, "The project doesn't exist", res, "The project doesn't exist")
+        return response(404, `The ${projectId} doesn't exist`, res, "The project doesn't exist")
       }
       console.log('project', project)
       const json = await this.dataModel.readProjectFiles(project)

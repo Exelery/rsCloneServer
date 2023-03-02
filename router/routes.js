@@ -17,7 +17,8 @@ const dataController = new DataController()
 
 router.get('/users', pass, userController.getAllUsers)
 router.get('/user', pass, userController.getUser)
-router.put('/user', pass, userController.updateUser)
+router.put('/user', pass, body('email').isEmail(),
+  userController.updateUser)
 router.post('/user/resetpass', userController.reset)
 router.get('/user/activate', userController.activateUserAgain)
 
@@ -26,7 +27,7 @@ router.post('/auth/registration',
   body('password').isLength({ min: 3, max: 32 }),
   userController.registration)
 router.post('/auth/login', body('email').isEmail(),
-  body('password').isLength({ min: 3, max: 32 }), userController.login,)
+  body('password').isLength({ max: 32 }), userController.login,)
 router.get('/auth/logout', pass, userController.logout)
 router.post('/auth/refresh', userController.refresh)
 router.get('/auth/activate/:link', userController.activate)
