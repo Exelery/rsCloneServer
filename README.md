@@ -1,7 +1,7 @@
 # rsCloneServer
 rsCloneServer
 
-- deploy: https://rscloneserver-production.up.railway.app/api/
+- deploy: https://rscloneserver-production.up.railway.app
 
 ## Stack and libraries
 - NodeJS
@@ -27,14 +27,14 @@ Install dependencies: $ npm install.
 set your environment variables in env file for mysql connection and nodemailer
 Start server: $ npm run dev.
 
-Now you can send requests to the address: http://localhost:5000/api.
+Now you can send requests to the address: http://localhost:5000.
 
 #### Requests
 
 #### Registration
 
 <details>
- <summary><code>POST</code> <code><b>/</b></code><code>auth/registration</code></summary>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>auth/registration</code></summary>
 
 ##### Headers:
 Content-Type: application/json
@@ -55,7 +55,7 @@ Content-Type: application/json
 #### Login
 
 <details>
- <summary><code>POST</code> <code><b>/</b></code><code>auth/login</code></summary>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>auth/login</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -77,7 +77,7 @@ Content-Type: application/json
 #### Logout
 
 <details>
- <summary><code>GET</code> <code><b>/</b></code><code>auth/logout</code></summary>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>auth/logout</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -98,7 +98,7 @@ none
 #### Refresh access token
 
 <details>
- <summary><code>POST</code> <code><b>/</b></code><code>auth/refresh</code></summary>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>auth/refresh</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -122,7 +122,7 @@ refreshToken : [refreshToken]
 
 #### Verify email
 <details>
- <summary><code>GET</code> <code><b>/</b></code><code>auth/activate/:link</code></summary>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>auth/activate/:link</code></summary>
 
 ##### Headers:
 none
@@ -142,7 +142,7 @@ redirect or 500
 #### Get all users
 
 <details>
- <summary><code>GET</code> <code><b>/</b></code><code>users</code></summary>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>users</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -163,7 +163,7 @@ none
 #### Get user
 
 <details>
- <summary><code>GET</code> <code><b>/</b></code><code>user</code></summary>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>user</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -184,7 +184,7 @@ none
 #### Update user
 
 <details>
- <summary><code>PUT</code> <code><b>/</b></code><code>user</code></summary>
+ <summary><code>PUT</code> <code><b>/api/</b></code><code>user</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -207,7 +207,7 @@ none
 #### Reset Password
 
 <details>
- <summary><code>POST</code> <code><b>/</b></code><code>user/resetpass</code></summary>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>user/resetpass</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -229,7 +229,7 @@ none
 #### Actiate user Email
 
 <details>
- <summary><code>GET</code> <code><b>/</b></code><code>user/activate</code></summary>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>user/activate</code></summary>
 
 ##### Headers:
 > Content-Type: application/json
@@ -246,5 +246,142 @@ none
 > | `401`         | value: { 'Unauthorized access' } 
 > | `500`         | value: {error}
 </details>
+
+
+
+### Data
+#### Get all user projects
+
+<details>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>data</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+> Authorization: 'Bearer [accessToken]'
+
+##### Body: 
+none
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: { projects[] }
+> | `401`         | value: { 'Unauthorized access' } 
+> | `400`         | value: "User doesn't exist"
+> | `500`         | value: {error}
+</details>
+
+#### Create project
+
+<details>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>data</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+> Authorization: 'Bearer [accessToken]'
+
+##### Body: 
+{projectName: string, data: string}
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: { projectId: number }
+> | `401`         | value: { 'Unauthorized access' } 
+> | `500`         | value: {error}
+</details>
+
+#### Delete project
+
+<details>
+ <summary><code>DELETE</code> <code><b>/api/</b></code><code>data</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+> Authorization: 'Bearer [accessToken]'
+
+##### Body: 
+{projectId: number}
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: `Project {projectId} deleted`
+> | `404`         | value: `Project {projectId} doesn't exist`
+> | `401`         | value: { 'Unauthorized access' } 
+> | `500`         | value: {error}
+</details>
+
+
+#### Update project
+
+<details>
+ <summary><code>PUT</code> <code><b>/api/</b></code><code>data</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+> Authorization: 'Bearer [accessToken]'
+
+##### Body: 
+{projectId: number, projectName: string, data: string}
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: `Project {projectId} updated`
+> | `404`         | value: `Project {projectId} doesn't exist`
+> | `401`         | value: { 'Unauthorized access' } 
+> | `500`         | value: {error}
+</details>
+
+
+#### Create link for project
+
+<details>
+ <summary><code>POST</code> <code><b>/api/</b></code><code>data/bind</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+> Authorization: 'Bearer [accessToken]'
+
+##### Body: 
+{projectId: number}
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: `url`
+> | `404`         | value: `Project {projectId} doesn't exist`
+> | `401`         | value: { 'Unauthorized access' } 
+> | `500`         | value: {error}
+</details>
+
+#### Show Saved project by url
+
+<details>
+ <summary><code>GET</code> <code><b>/api/</b></code><code>/page/:hash/:file</code></summary>
+
+##### Headers:
+> Content-Type: application/json
+
+##### Body: 
+none
+
+##### Responses
+
+> | http code     | response                                                            
+> |---------------|---------------------------------------------------------------------
+> | `200`         | value: `url`
+> | `404`         | value: 'no such file'
+> | `401`         | value: { 'Unauthorized access' } 
+> | `500`         | value: {error}
+</details>
+
+
 
 
